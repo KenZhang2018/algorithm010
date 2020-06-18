@@ -723,7 +723,6 @@ class Solution {
 ## 2.自己画一下有向有权图<br>
 
 ![邻接矩阵有向有权图](https://github.com/KenZhang2018/algorithm010/blob/master/Week02/%E9%82%BB%E6%8E%A5%E7%9F%A9%E9%98%B5%E6%9C%89%E5%90%91%E6%9C%89%E6%9D%83%E5%9B%BE.jpg)<br>
-github上可以展示图片<br>
 
 参考链接<br>
 [连通图个数](https://leetcode-cn.com/problems/number-of-islands/)<br>
