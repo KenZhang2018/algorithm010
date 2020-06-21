@@ -18,6 +18,7 @@ BFS代码/DFS代码-递归写法/<br>
 ## 相关链接<br>
 数据结构中数据的变化展示:https://visualgo.net/zh/bst<br>
 数据结构时间复杂度查询:https://www.bigocheatsheet.com/<br>
+Heap (data structure):https://en.wikipedia.org/wiki/Heap_(data_structure)<br>
 HashMap解析文章:https://juejin.im/post/5dedb448f265da33b071716a
 
 # [算法知识树梳理](http://note.youdao.com/noteshare?id=39068496ec76452129afae7589764371&sub=1B0E068D2A7645B5B4F37AF45A8E4BD1)<br>
@@ -517,9 +518,9 @@ class Solution {
 
 ## 6.[字母异位词分组](https://leetcode-cn.com/problems/group-anagrams/)<br>
 （亚马逊在半年内面试中常考）<br>
-散列表方式<br>
-时间复杂度O()<br>
-空间复杂度O()<br>
+**排序+散列表方式**<br>
+时间复杂度：O(N*Klog K)，其中 N 是 strs 的长度，而 K是 strs 中字符串的最大长度。<br>
+空间复杂度：O(NK)，排序存储在 ans 中的全部信息内容。<br>
 执行11ms,击败48.18%的用户<br>
 
 ```
@@ -545,6 +546,70 @@ class Solution {
     }
 }
 ```
+
+**字母计数+散列表方式**<br>
+注意：map的key不能是累加的Integer类型<br>
+时间复杂度：O(NK)，其中 N 是 strs 的长度，而 K 是 strs 中字符串的最大长度。计算每个字符串的字符串大小是线性的，我们统计每个字符串。
+<br>
+空间复杂度：O(NK)，排序存储在 ans 中的全部信息内容。<br>
+执行16ms，击败28.94%的用户<br>
+
+```
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        List<List<String>> list = new ArrayList();
+        if (strs == null) {
+            return list;
+        }
+        Map<String, List<String>> map = new HashMap();
+        int[] ints = new int[26];
+        for (int i = 0; i < strs.length; i++) {
+            Arrays.fill(ints, 0);
+            char[] chars = strs[i].toCharArray();
+            for (int j = 0; j < chars.length; j++) {
+                ints[chars[j] - 'a']++;
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < 26; j++) {
+                sb.append(ints[j]);
+            }
+            String key = sb.toString();
+            if (!map.containsKey(key)) {
+                map.put(key, new ArrayList());
+            }
+            map.get(key).add(strs[i]);
+        }
+        list.addAll(map.values());
+        return list;
+    } 
+}
+```
+
+
+```
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        if (strs.length == 0) return new ArrayList();
+        Map<String, List> ans = new HashMap<String, List>();
+        int[] count = new int[26];
+        for (String s : strs) {
+            Arrays.fill(count, 0);
+            for (char c : s.toCharArray()) count[c - 'a']++;
+            StringBuilder sb = new StringBuilder("");
+            for (int i = 0; i < 26; i++) {
+                sb.append('#');
+                sb.append(count[i]);
+            }
+            String key = sb.toString();
+            if (!ans.containsKey(key)) ans.put(key, new ArrayList());
+            ans.get(key).add(s);
+        }
+        return new ArrayList(ans.values());
+    }
+}
+```
+
+
 
 
 ## 7.[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)<br>
@@ -688,14 +753,213 @@ class Solution {
 
 ## 9.[N 叉树的层序遍历](https://leetcode-cn.com/problems/n-ary-tree-level-order-traversal/)<br>
 （亚马逊在半年内面试中考过）<br>
+**基于队列的方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(n) 当只有两层时,所有的子节点都在第二层<br>
+==犯错处:==for循环中的终止条件错写成i < queue.size();
+
+```
+class Solution {
+
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) {
+            return result;
+        }
+        // 1.使用队列记录按层的放入顺序
+        // 2.每加入新一层前,先取完上一层的元素
+        LinkedList<Node> queue = new LinkedList();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            List<Integer> level = new ArrayList();
+            result.add(level);
+            // 一定要用局部变量来记录
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                Node temp = queue.remove();
+                level.add(temp.val);
+                queue.addAll(temp.children);
+            }
+        }
+        return result;
+    }
+}
+```
+
+**递归方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(n) 空间复杂度与树的高度成正比,最坏情况退化为链表<br>
+执行1ms,击败100%的用户<br>
+==犯错:==<br>
+1.if (result.size() <= depth) 
+2.corner case:root=null
+
+```
+class Solution {
+
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        // 递归处理
+        recursion(root, 0, result);
+        return result;
+    }
+
+    private void recursion(Node root, int depth, List<List<Integer>> result) {
+        if (result.size() <= depth) {
+            result.add(new ArrayList());
+        }
+        // 终止条件 叶子节点为止
+        // 递推公式 根-->左-->右
+        result.get(depth).add(root.val);
+        for (Node node : root.children) {
+            recursion(node, depth + 1, result);
+        }
+    }
+
+}
+```
+
 
 
 ## 10.[丑数](https://leetcode-cn.com/problems/chou-shu-lcof/)<br>
 （字节跳动在半年内面试中考过）<br>
+**递推方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(n) 数组的长度<br>
+执行2ms,击败98.88%的用户<br>
+
+```
+class Solution {
+    public int nthUglyNumber(int n) {
+        if (n == 0) return 0;
+        int[] dp = new int[n];
+        dp[0] = 1;
+        int a = 0, b = 0, c = 0;
+        for (int i = 1; i < n; i++) {
+            int dpa = dp[a] * 2;
+            int dpb = dp[b] * 3;
+            int dpc = dp[c] * 5;
+            int min = Math.min(Math.min(dpa, dpb), dpc);
+            dp[i] = min;
+            if (min == dpa) a++;
+            if (min == dpb) b++;
+            if (min == dpc) c++;
+        }
+        return dp[n - 1];
+    }
+}
+```
+
+**小顶堆方式**<br>
+时间复杂度O(n*KlongK) n为执行的次数,K为小顶堆的个数<br>
+空间复杂度O(n) 集合Set存储所有的丑数<br>
+执行81ms,击败6.26%的用户<br>
+学习到:<br>
+1.PriorityQueue默认是小顶堆,函数offer(),poll()
+
+```
+class Solution {
+    public int nthUglyNumber(int n) {
+        PriorityQueue priorityQueue = new PriorityQueue();
+        Set<Long> set = new HashSet();
+        long[] factors = new long[] {2, 3, 5};
+        for (long factor : factors) {
+            priorityQueue.offer(factor);
+            set.add(factor);
+        }
+        long result = 1;
+        for (int i = 1; i < n; i++) {
+            result = (long)priorityQueue.poll();
+            for (int j = 0; j < 3; j++) {
+                long temp = result * factors[j];
+                if (!set.contains(temp)) {
+                    priorityQueue.offer(temp);
+                    set.add(temp);
+                }
+            }
+        }
+        return (int)result;
+    }
+}
+```
+
 
 
 ## 11.[前 K 个高频元素](https://leetcode-cn.com/problems/top-k-frequent-elements/)<br>
 （亚马逊在半年内面试中常考）<br>
+**小顶堆方式**<br>
+时间复杂度O(nlogK) 每个元素要在小顶堆中排序<br>
+空间复杂度O(n) 每个元素都不相同时，map要存储n个元素的key<br>
+执行20ms，击败35.42%的用户<br>
+==学习：lamda表达式、for循环写法、Collections的反转==<br>
+
+```
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        // 1.HashMap先为每个元素的个数计数
+        // 2.利用小顶堆记录频率最高的前k个元素
+        // 3.从小顶堆中取出数据进行组装
+        Map<Integer, Integer> map = new HashMap();
+        for (int num : nums) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+        PriorityQueue<Integer> littleHeap = new PriorityQueue((n1 ,n2) -> map.get(n1) - map.get(n2));
+        for (int count : map.keySet()) {
+            littleHeap.add(count);
+            if (littleHeap.size() > k) {
+                littleHeap.poll();
+            }
+        }
+        ArrayList<Integer> list = new ArrayList<>();
+        while (!littleHeap.isEmpty()) {
+            list.add(littleHeap.poll());
+        }
+        Collections.reverse(list);
+        int[] top_k = new int[k];
+        for (int i = 0; i < k; i++) {
+            top_k[i] = list.get(i);
+        }
+        return top_k;
+    }
+}
+```
+
+**计数方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(n) 最坏情况每个元素只出现一次，map需要n个位置，List[1]会有n个元素<br>
+执行13ms，击败96.4的用户<br>
+
+```
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        // 1.使用字典统计个数
+        // 2.根据个数作为下标存入List中
+        // 3.整理数据输出
+        Map<Integer, Integer> map = new HashMap();
+        for (int num : nums) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+        List<Integer>[] list = new ArrayList[nums.length + 1];
+        for (Integer num: map.keySet()) {
+            if (list[map.get(num)] == null) {
+                list[map.get(num)] = new ArrayList<>();
+            }
+            list[map.get(num)].add(num);
+        }
+        List<Integer> result = new ArrayList();
+        for (int i = nums.length; i >= 0 && result.size() < k; i--) {
+            if (list[i] == null) continue;
+            result.addAll(list[i]);
+        }
+        int[] top_k = new int[k];
+        for (int i = 0; i < k; i++) {
+            top_k[i] = result.get(i);
+        }
+        return top_k;
+    }
+}
+```
 
 
 
@@ -723,6 +987,8 @@ class Solution {
 ## 2.自己画一下有向有权图<br>
 
 ![邻接矩阵有向有权图](https://github.com/KenZhang2018/algorithm010/blob/master/Week02/%E9%82%BB%E6%8E%A5%E7%9F%A9%E9%98%B5%E6%9C%89%E5%90%91%E6%9C%89%E6%9D%83%E5%9B%BE.jpg)<br>
+![邻接表有向有权图](https://github.com/KenZhang2018/algorithm010/blob/master/Week02/%E9%82%BB%E6%8E%A5%E8%A1%A8%E6%9C%89%E5%90%91%E6%9C%89%E6%9D%83%E5%9B%BE.jpg)<br>
+github上可以展示图片<br>
 
 参考链接<br>
 [连通图个数](https://leetcode-cn.com/problems/number-of-islands/)<br>
