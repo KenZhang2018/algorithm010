@@ -1,5 +1,3 @@
-学习笔记
-
 # 学习心得<br>
 
 ## 课程内容所得<br>
@@ -43,6 +41,5 @@
 递归代码模板:https://shimo.im/docs/EICAr9lRPUIPHxsH/read<br>
 分治代码模板:https://shimo.im/docs/zvlDqLLMFvcAF79A/read<br>
 如何优雅地计算斐波那契数列:https://time.geekbang.org/dailylesson/detail/100028406<br>
-
 
 
