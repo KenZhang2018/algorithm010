@@ -165,6 +165,93 @@ class Solution {
 
 ## 2.[从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)<br>
 （字节跳动、亚马逊、微软在半年内面试中考过）<br>
+**递归方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(1)<br>
+执行4ms，击败56.64%的用户<br>
+==犯错地方：计算左子树节点的个数==<br>
+
+```
+public TreeNode buildTree(int[] preorder, int[] inorder) {
+        TreeNode root = buildTreeHelper(preorder, 0, preorder.length, inorder, 0, inorder.length);
+        return root;
+    }
+
+    private TreeNode buildTreeHelper(int[] preorder, int pStart, int pEnd, int[] inorder, int iStart, int iEnd) {
+        // recursion terminator
+        if (pStart == pEnd) return null;
+        // process current level logic
+        int rootValue = preorder[pStart];
+        TreeNode root = new TreeNode(rootValue);
+        // 可以优化为散列表
+        int inorderRootIndex = 0;
+        for (int i = iStart; i < iEnd; i++) {
+            if (rootValue == inorder[i]) {
+                inorderRootIndex = i;
+                break;
+            }
+        }
+        // my fault
+        int leftTreeNum = inorderRootIndex - iStart;
+        // drill down
+        root.left = buildTreeHelper(preorder, pStart + 1, pStart + leftTreeNum + 1,
+                inorder, iStart, inorderRootIndex);
+        root.right = buildTreeHelper(preorder, pStart + leftTreeNum + 1, pEnd,
+                inorder, inorderRootIndex + 1, iEnd);
+        // reverse states
+        return root;
+    }
+```
+
+**迭代方式**<br>
+时间复杂度O(n)<br>
+空间复杂度O(n)<br>
+执行2ms，击败98.28%的用户<br>
+==犯错地方：出栈必须使用while==<br>
+
+```
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ 前序遍历 preorder = [3,9,20,15,7]
+ 中序遍历 inorder = [9,3,15,20,7]
+ */
+class Solution {
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        // 处理边界情况
+        // 创建栈并放入根节点
+        // 构建根节点和左子树
+        // 依次出栈构建右子树
+        if (preorder == null || preorder.length == 0) return null;
+        Stack<TreeNode> stack = new Stack();
+        int pre = 0, in = 0;
+        TreeNode root = new TreeNode(preorder[pre++]);
+        TreeNode curRoot = root;
+        stack.push(curRoot);
+        while (pre < preorder.length) {
+            if (curRoot.val != inorder[in]) {
+                curRoot.left = new TreeNode(preorder[pre++]);
+                curRoot = curRoot.left;
+                stack.push(curRoot);
+            } else {
+                while (!stack.isEmpty() && stack.peek().val == inorder[in++]) {
+                    curRoot = stack.pop();
+                }
+                curRoot.right = new TreeNode(preorder[pre++]);
+                curRoot = curRoot.right;
+                stack.push(curRoot);
+            }
+        }
+        return root;
+    }
+}
+```
+
 
 
 ## 3.[组合](https://leetcode-cn.com/problems/combinations/)<br>
