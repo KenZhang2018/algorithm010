@@ -357,6 +357,43 @@ class Solution {
 
 ## 4.[全排列](https://leetcode-cn.com/problems/permutations/)<br>
 （字节跳动在半年内面试常考）<br>
+**回溯方式**<br>
+时间复杂度O(n*n!) 其中 n 为序列的长度<br>
+空间复杂度O(n) 其中 n 为序列的长度(递归树的深度)<br>
+执行2ms,击败81.74%的用户<br>
+
+```
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        // 构造输入数据集合dataList和输出结果list
+        List<List<Integer>> list = new ArrayList();
+        List<Integer> dataList = new ArrayList();
+        for (int n : nums) 
+            dataList.add(n);
+        backtrace(dataList, 0, list);
+        return list;
+    }
+
+    private void backtrace(List<Integer> dataList, int begin, List<List<Integer>> list) {
+        // recursion terminator
+        if (begin == dataList.size()) {
+            //错误写法,因为只记录子集的位置,而后续又将位置交换回来了
+            // list.add(dataList.subList(0, dataList.size()));
+            // 正确写法 所以需要重新建一个对象
+            list.add(new ArrayList(dataList));
+            return;
+        }
+        // proccess current level logic
+        // drill down
+        for (int i = begin; i < dataList.size(); i++) {
+            Collections.swap(dataList, begin, i);
+            backtrace(dataList, begin + 1, list);
+            Collections.swap(dataList, begin, i);
+        }
+        // reverse current states
+    }
+}
+```
 
 
 ## 5.[全排列 II](https://leetcode-cn.com/problems/permutations-ii/)<br>
