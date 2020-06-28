@@ -256,6 +256,101 @@ class Solution {
 
 ## 3.[组合](https://leetcode-cn.com/problems/combinations/)<br>
 （微软、亚马逊、谷歌在半年内面试中考过）<br>
+**回溯方式 + 优化剪枝**<br>
+
+```math
+时间复杂度 : O(k C_N^k)，其中 C_N^k = \frac{N!}{(N - k)! k!}是要构成的组合数
+```
+
+```math
+空间复杂度 : O(C_N^k) ，用于保存全部组合数以输出.
+```
+
+递归树的深度也会损耗空间. <br>
+执行33ms,击败24.59%的用户<br>
+
+```
+class Solution {
+
+    List<List<Integer>> list = new ArrayList();
+
+    public List<List<Integer>> combine(int n, int k) {
+        // 1.clarification:corner case
+        // 2.possible solution --> optimal(time&space)
+        // 3.code
+        // 4.test cases
+        if (n == 0 || n < k) return null;
+        findComination(n, k, 1, new Stack());
+        return list;
+    }
+
+    private void findComination(int n, int k, int begin, Stack<Integer> stack) {
+        // recursion terminator
+        // proccess current level logic
+        // drill down
+        // reverse current states
+        if (stack.size() == k) {
+            list.add(new ArrayList(stack));
+            return;
+        }
+        for (int i = begin; n - i  >= k - (stack.size() + 1); i++) {
+        <!--for (int i = begin; i <= n; i++) {-->
+            // proccess current level logic
+            stack.push(i);
+            // dirll down
+            findComination(n, k, i + 1, stack);
+            // reverse current states
+            stack.pop();
+        }
+    }
+
+}
+```
+
+**排列方式**<br>
+```math
+时间复杂度 : O(k C_N^k)，其中 C_N^k = \frac{N!}{(N - k)! k!}是要构成的组合数
+```
+
+```math
+空间复杂度 : O(C_N^k) ，用于保存全部组合数以输出.
+```
+**学习地方**<br>
+排列的解决思路以及编程技巧<br>
+使用哨兵<br>
+linkedList.set(j, j++ + 1);<br>
+linkedList.set(j, linkedList.get(j) + 1);<br>
+
+```
+class Solution {
+    // n = 4, k = 2
+    // [1,2] [1,3] [2,3] [1,4] [2,4] [3,4] 
+    public List<List<Integer>> combine(int n, int k) {
+        // 1.构造模式k的LinkedList的子集
+        // 2.构造输出集合
+        // 3.循环将符合要求的结果放入输出集合中
+        LinkedList<Integer> linkedList = new LinkedList();
+        for (int i = 1; i <= k; i++) {
+            linkedList.add(i);
+        }
+        // 哨兵
+        linkedList.add(n + 1);
+        List<List<Integer>> list = new ArrayList();
+        int j = 0;
+        while (j < k) {
+            list.add(new ArrayList(linkedList.subList(0, k)));
+            j = 0;
+            while (j < k && (linkedList.get(j + 1) == linkedList.get(j) + 1)) {
+                linkedList.set(j, j++ + 1);
+            }
+            linkedList.set(j, linkedList.get(j) + 1);
+        }
+        return list;
+    }
+
+}
+```
+
 
 
 ## 4.[全排列](https://leetcode-cn.com/problems/permutations/)<br>
