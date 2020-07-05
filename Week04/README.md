@@ -274,7 +274,7 @@ class Solution {
 空间复杂度O(MN) <br>
 时间复杂度：O(M×N)，其中 M 是单词的长度 N 是单词表中单词的总数。找到所有的变换需要对每个单词做 M 次操作。同时，最坏情况下广度优先搜索也要访问所有的 N 个单词。<br>
 空间复杂度：O(M×N)，要在 combinationDictionary 字典中记录每个单词的 M 个通用状态。访问数组的大小是 N。广搜队列最坏情况下需要存储 N 个单词。<br>
-
+执行57ms,击败77.31%的用户<br>
 难点:wordList抽象成无向无权图<br>
 
 ```
@@ -519,8 +519,98 @@ class Solution {
 （亚马逊、微软、Facebook 在半年内面试中考过）<br>
 寻找旋转排序数组中的最小值<br>
 （亚马逊、微软、字节跳动在半年内面试中考过）<br>
+<br>
 困难<br>
-单词接龙 II <br>
+
+## [单词接龙 II](https://note.youdao.com/) <br>
 （微软、亚马逊、Facebook 在半年内面试中考过）<br>
+时间复杂度：O(N^2 *C)。 其中 N 为 wordList 的长度，C 为列表中单词的长度。构建映射关系的时间复杂度为 O(N)。建图首先两层遍历 wordList，复杂度为 O(N^2)，里面比较两个单词是否可以转换的时间复杂度为 O(C)，总的时间复杂度为 O(N^2 *C)。广度优先搜索的时间复杂度最坏情况下是 O(N^2)，因此总时间复杂度为 O(N^2 *C)。
+
+空间复杂度：O(N^2)。其中 N 为 wordList 的大小。数组和哈希表的复杂度都为 O(N)，图 edges 的复杂度最坏为 O(N^2)。广度优先搜索队列的复杂度最坏情况下，即每两个路径都有很多重叠的节点时，也是 O(N^2)，因此总的空间复杂度为 O(N^2)。<br>
+执行468ms,击败47.80%的用户<br>
+
+```
+class Solution {
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        List<List<String>> result = new ArrayList<>();
+        // 1.构建wordList的字典表wordId和idWord
+        // 2.构建wordList中与word只有一个字母差别的邻接表
+        // 3.初始化广度搜索需要的变量代价cost/队列queue/
+        // 4.广度搜索,找到符合要求的所有组合
+        Map<String, Integer> wordId = new HashMap<>();
+        List<String> idWord = new ArrayList<>();
+        for (int i = 0; i < wordList.size(); i++) {
+            if (!wordId.containsKey(wordList.get(i))) {
+                wordId.put(wordList.get(i), i);
+                idWord.add(wordList.get(i));
+            }
+        }
+        if (!wordId.containsKey(endWord)) {
+            return result;
+        }
+        if (!wordId.containsKey(beginWord)) {
+            idWord.add(beginWord);
+            wordId.put(beginWord, idWord.size() - 1);
+        }
+        int[] cost = new int[idWord.size()];
+        for (int i = 0; i < idWord.size(); i++) {
+            cost[i] = Integer.MAX_VALUE;
+        }
+        List<Integer>[] edges = new ArrayList[idWord.size()];
+        for (int i = 0; i < idWord.size(); i++) {
+            edges[i] = new ArrayList<>();
+        }
+        for (int i = 0; i < idWord.size(); i++) {
+            for (int j = i + 1; j < idWord.size(); j++) {
+                if (transformCheck(idWord.get(i), idWord.get(j))) {
+                    edges[i].add(j);
+                    edges[j].add(i);
+                }
+            }
+        }
+        int destination = wordId.get(endWord);
+        Queue<List<Integer>> queue = new LinkedList<>();
+        List<Integer> beginList = new ArrayList<>();
+        beginList.add(wordId.get(beginWord));
+        cost[wordId.get(beginWord)] = 0;
+        queue.add(beginList);
+        while (!queue.isEmpty()) {
+            List<Integer> now = queue.remove();
+            Integer last = now.get(now.size() - 1);
+            if (last == destination) {
+                List<String> subResult = new ArrayList<>();
+                for (int i = 0; i < now.size(); i++) {
+                    subResult.add(idWord.get(now.get(i)));
+                }
+                result.add(subResult);
+            } else {
+                for (int i = 0; i < edges[last].size(); i++) {
+                    Integer to = edges[last].get(i);
+                    if (cost[last] + 1 <= cost[to]) {
+                        cost[to] = cost[last] + 1;
+                        List<Integer> newNow = new ArrayList<>(now);
+                        newNow.add(to);
+                        queue.add(newNow);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean transformCheck(String s, String s1) {
+        int differece = 0;
+        int length = s.length();
+        for (int i = 0; i < length && differece < 2; i++) {
+            if (s.charAt(i) != s1.charAt(i)) {
+                ++differece;
+            }
+        }
+        return differece == 1 ? true : false;
+    }
+}
+```
+
+
 跳跃游戏 II <br>
 （亚马逊、华为、字节跳动在半年内面试中考过）<br>
