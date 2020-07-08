@@ -9,7 +9,7 @@
 # 作业题<br>
 ## 1.[柠檬水找零](https://leetcode-cn.com/problems/lemonade-change/description/)<br>
 （亚马逊在半年内面试中考过））<br>
-**递归--二叉树的后序遍历方式**<br>
+**贪心递推方式**<br>
 时间复杂度O(n)<br>
 空间复杂度O(1)<br>
 执行时间4ms,击败12.07%的用户<br>
