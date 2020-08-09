@@ -1,4 +1,12 @@
+## 做题步骤<br>
+#### 1.clarification:corner case<br>
+#### 2.possible solution ---> optimal(time & space)<br>
+#### 3.code<br>
+#### 4.test cases<br>
+<br>
 
+
+# 作业题<br>
 
 ### [63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)<br>
 状态转移方程:<br>
@@ -161,5 +169,29 @@ class Solution {
         }
         return !is_negative ? result : -result;
     }
+}
+```
+
+### [32. 最长有效括号](https://leetcode-cn.com/problems/longest-valid-parentheses/)<br>
+dp方式<br>
+时间复杂度O(n)<br>
+空间复杂度O(n)<br>
+执行1ms,击败100%的用户<br>
+```
+public int longestValidParentheses(String s) {
+    int maxLength = 0;
+    int[] dp = new int[s.length()];
+    for (int i = 1; i < s.length(); i++) {
+        int needIndex = i - dp[i - 1] - 1;
+        if (needIndex < 0) continue;
+        if (s.charAt(i) == ')' && s.charAt(needIndex) == '(') {
+            dp[i] = dp[i - 1] + 2;
+            if (needIndex - 1 >= 0) {
+                dp[i] += dp[needIndex - 1];
+            }
+            maxLength = Math.max(maxLength, dp[i]);
+        }
+    }
+    return maxLength;
 }
 ```
